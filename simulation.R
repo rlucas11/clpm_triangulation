@@ -1,6 +1,8 @@
 ################################################################################
-## Final Code
+## CLPM Triangulation Analysis
 ################################################################################
+
+## Load Libraries
 library(MASS)
 library(tidyverse)
 library(ggplot2)
@@ -11,14 +13,15 @@ library(psych)
 set.seed(1234)
 
 gen_data <- function(n=10000,
-                     rho=.5,
-                     cl=.2,
-                     stability=.5,
-                     yMean=10,
-                     ySd=2,
-                     xMean=10,
-                     xSd=2,
-                     resid=1.5) {
+                     rho=.5, # Correlation between Initial (Y1) and Change (X)
+                     cl=.2, # Effect of X on Y
+                     stability=.5, # Stability of Y
+                     yMean=0, 
+                     ySd=1,
+                     xMean=0,
+                     xSd=1,
+                     resid=1.5 # Residual variance in Final (Y2)
+                     ) {
     
     ## Generate initial variables
     xyCov <- rho*xSd*ySd
@@ -36,26 +39,6 @@ gen_data <- function(n=10000,
 }
 
 
-## ## Old
-## gen_data <- function(n=10000, rho=.5, cl=.2, stability=.5, mean=10, sd=2, resid=1.5) {
-##     ## Generate a normally distributed variable
-##     initial <- rnorm(n, mean = mean, sd = sd)
-
-##     ## Generate a second normally distributed variable
-##     temp <- rnorm(n, mean = mean, sd = sd)
-
-##     ## Combine them to create a correlated variable
-##     change <- rho * initial + sqrt(1 - rho^2) * temp
-
-##     ## Create outcome
-##     final <- initial * stability + change * cl + rnorm(n, mean = 0, sd = resid)
-
-##     ## Create dataframe
-##     data <- data.frame(initial, change, final)
-
-##     return(data)
-## }
-
 compare_models <- function(data) {
     model1 <- lm(final ~ change + initial, data = data)
     model2 <- lm(initial ~ change + final, data = data)
@@ -68,9 +51,11 @@ compare_models <- function(data) {
     return(comparison)
 }
 
+################################################################################
+## Test one set of parameters
+################################################################################
 
-## Test one data set
-data <- gen_data(rho=0, cl=.7, stability=.5, resid=1)
+data <- gen_data(rho=0, cl=1, stability=.1, resid=0)
 cor(data)
 describe(data)
 compare_models(data)
@@ -80,10 +65,14 @@ compare_models(data)
 ## Run simulation
 ################################################################################
 
+## Select values to simulate
+## Omit 0 for CL and Stability because they can create perfectly correlated
+## predictors
+
 rhos <- seq(0, .9, by = .3)
 cls <- seq(.1, 1, by = .3)
 stabilities <- seq(.1, 1, by = .3)
-resids <- seq(0, 3, by = 1)
+resids <- seq(0, .9, by = .3)
 
 values <- expand.grid(rho=rhos, cl=cls, stability=stabilities, resid=resids)
 
@@ -98,7 +87,11 @@ for (i in 1:nrow(values)) {
             rho = values[i, 1],
             cl = values[i, 2],
             stability = values[i, 3],
-            resid = values[i, 4]
+            resid = values[i, 4],
+            yMean = 0,
+            ySd = 1,
+            xMean = 0,
+            xSd = 1
         ))
     )
 }
@@ -109,6 +102,9 @@ names(final)[5:7] <- c("standard", "reversed", "difference")
 ################################################################################
 ## Plots
 ################################################################################
+
+#### Main plots for reversed regression
+## Plot data with residual variance
 final %>%
     select(rho, cl, stability, resid, reversed) %>%
     filter(resid > 0) %>%
@@ -116,11 +112,28 @@ final %>%
     facet_wrap(~rho + resid, ncol = 3) +
     geom_line(aes(color = stability))
 
-
+## Plot only data with no residual variance
 final %>%
     select(rho, cl, stability, resid, reversed) %>%
     filter(resid == 0) %>%
     ggplot(aes(x = cl, y = reversed, group = stability)) +
+    facet_wrap(~rho, nrow = 1) +
+    geom_line(aes(color = stability))
+
+#### Main plots for difference
+## Plot data with residual variance
+final %>%
+    select(rho, cl, stability, resid, difference) %>%
+    filter(resid > 0) %>%
+    ggplot(aes(x = cl, y = difference, group = stability)) +
+    facet_wrap(~rho + resid, ncol = 3) +
+    geom_line(aes(color = stability))
+
+## Plot only data with no residual variance
+final %>%
+    select(rho, cl, stability, resid, difference) %>%
+    filter(resid == 0) %>%
+    ggplot(aes(x = cl, y = difference, group = stability)) +
     facet_wrap(~rho, nrow = 1) +
     geom_line(aes(color = stability))
 
