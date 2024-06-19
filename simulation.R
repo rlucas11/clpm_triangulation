@@ -4,8 +4,11 @@
 library(MASS)
 library(tidyverse)
 library(ggplot2)
+library(psych)
 
 ## Function to generate Initial, Change, and Final scores
+
+set.seed(1234)
 
 gen_data <- function(n=10000,
                      rho=.5,
@@ -67,7 +70,7 @@ compare_models <- function(data) {
 
 
 ## Test one data set
-data <- gen_data(rho=.5, cl=.4, stability=0, resid=0)
+data <- gen_data(rho=0, cl=.7, stability=.5, resid=1)
 cor(data)
 describe(data)
 compare_models(data)
@@ -106,8 +109,6 @@ names(final)[5:7] <- c("standard", "reversed", "difference")
 ################################################################################
 ## Plots
 ################################################################################
-library(ggplot2)
-
 final %>%
     select(rho, cl, stability, resid, reversed) %>%
     filter(resid > 0) %>%
@@ -125,3 +126,25 @@ final %>%
 
 
 
+################################################################################
+## Original Paper Data
+################################################################################
+
+orig <- read_csv("data_all.csv")
+library(osfr)
+
+## Get Data (code from original authors)
+
+project <- osf_retrieve_node("https://osf.io/dpvzr/") ## link to the project at OSF
+files <- osf_ls_files(project) ## files linked to the project
+datatemp <- osf_download(files[files$name=="data_all.csv",], conflicts="overwrite") ## downloading the csv data file
+data_all <- read.csv(datatemp$local_path, header=T) ## creating an object with the data
+
+summary(lm(subs_g ~ add_rem + initial_g, data = data_all[which(data_all$add==1),]))
+summary(lm(subs_g ~ diff_g + initial_g, data = data_all[which(data_all$add==1),]))
+summary(lm(initial_g ~ diff_g + subs_g, data = data_all[which(data_all$add==1),]))
+summary(lm(diff_g ~ subs_g + initial_g, data = data_all[which(data_all$add==1),]))
+
+## No need to control for initial:
+
+summary(lm(subs_g ~ diff_g, data = data_all[which(data_all$add==1),]))
