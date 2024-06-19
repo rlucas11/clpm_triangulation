@@ -109,8 +109,10 @@ final %>%
     select(rho, cl, stability, resid, reversed) %>%
     filter(resid > 0) %>%
     ggplot(aes(x = cl, y = reversed, group = stability)) +
-    facet_wrap(~rho + resid, ncol = 3) +
+    facet_wrap(~rho + resid, ncol = 3, labeller=label_both) +
     geom_line(aes(color = stability))
+
+ggsave("plot.png")
 
 ## Plot only data with no residual variance
 final %>%
