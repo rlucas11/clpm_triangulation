@@ -42,7 +42,7 @@ gen_data <- function(n=10000,
 compare_models <- function(data) {
     model1 <- lm(final ~ change + initial, data = data)
     model2 <- lm(initial ~ change + final, data = data)
-    diff  <- cor(data$initial, data$final - data$initial)
+    diff  <- cor(data$change, data$final - data$initial)
     comparison <- list(
         'Final on Change' = coef(model1)[2],
         'Initial on Change' = coef(model2)[2],
@@ -55,7 +55,7 @@ compare_models <- function(data) {
 ## Test one set of parameters
 ################################################################################
 
-data <- gen_data(rho=0, cl=1, stability=.1, resid=0)
+data <- gen_data(rho=.5, cl=.5, stability=0, resid=.5)
 cor(data)
 describe(data)
 compare_models(data)
@@ -72,7 +72,7 @@ compare_models(data)
 rhos <- seq(0, .9, by = .3)
 cls <- seq(.1, 1, by = .3)
 stabilities <- seq(.1, 1, by = .3)
-resids <- seq(0, .9, by = .3)
+resids <- seq(.3, .9, by = .3)
 
 values <- expand.grid(rho=rhos, cl=cls, stability=stabilities, resid=resids)
 
@@ -107,37 +107,21 @@ names(final)[5:7] <- c("standard", "reversed", "difference")
 ## Plot data with residual variance
 final %>%
     select(rho, cl, stability, resid, reversed) %>%
-    filter(resid > 0) %>%
     ggplot(aes(x = cl, y = reversed, group = stability)) +
     facet_wrap(~rho + resid, ncol = 3, labeller=label_both) +
     geom_line(aes(color = stability))
 
-ggsave("plot.png")
-
-## Plot only data with no residual variance
-final %>%
-    select(rho, cl, stability, resid, reversed) %>%
-    filter(resid == 0) %>%
-    ggplot(aes(x = cl, y = reversed, group = stability)) +
-    facet_wrap(~rho, nrow = 1) +
-    geom_line(aes(color = stability))
+ggsave("coef2.png")
 
 #### Main plots for difference
 ## Plot data with residual variance
 final %>%
     select(rho, cl, stability, resid, difference) %>%
-    filter(resid > 0) %>%
     ggplot(aes(x = cl, y = difference, group = stability)) +
-    facet_wrap(~rho + resid, ncol = 3) +
+    facet_wrap(~rho + resid, ncol = 3, labeller=label_both) +
     geom_line(aes(color = stability))
 
-## Plot only data with no residual variance
-final %>%
-    select(rho, cl, stability, resid, difference) %>%
-    filter(resid == 0) %>%
-    ggplot(aes(x = cl, y = difference, group = stability)) +
-    facet_wrap(~rho, nrow = 1) +
-    geom_line(aes(color = stability))
+ggsave("coef3.png")
 
 
 
@@ -162,4 +146,5 @@ summary(lm(diff_g ~ subs_g + initial_g, data = data_all[which(data_all$add==1),]
 
 ## No need to control for initial:
 
-summary(lm(subs_g ~ diff_g, data = data_all[which(data_all$add==1),]))
+summary(lm(subs_g ~ add_rem + initial_g, data = data_all[which(data_all$add==1),]))
+summary(lm(subs_g ~ add_rem, data = data_all[which(data_all$add==1),]))
