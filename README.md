@@ -12,7 +12,7 @@ The critical point of these simulations is this: The authors developed the logic
 
 The plot below shows the results of the simulations for the authors' second test. True causal effects of X1 on Y2 (varying in size) are specified in each simulation. The figure shows that there are many situations where this critical coefficient is positive, which the authors argue would signal a spurious effect. 
 
-![coef2.png]
+![](coef2.png)
 
 The simulations show that positive correlations in the reversal regression (which the authors propose signal spurious effects) are more likely to emerge:
 
@@ -23,7 +23,7 @@ The simulations show that positive correlations in the reversal regression (whic
 
 The second plot shows the results of the simulations using the authors third test (the coefficient when regressing the difference between Y2 and Y1 on X1), which the authors propose should be positive for true causal effects. Again, many values are negative for plausible parameters, and the likelihood of a negative coefficient increases as the correlation between X1 and Y1 goes up. 
 
-![coef3.png]
+![](coef3.png)
 
 We believe that these simulations show that the authors' test is not diagnostic of true versus spurious causal effects. 
 
