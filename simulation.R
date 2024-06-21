@@ -10,8 +10,6 @@ library(psych)
 
 ## Function to generate Initial, Change, and Final scores
 
-set.seed(1234)
-
 gen_data <- function(n=10000,
                      rho=.5, # Correlation between Initial (Y1) and Change (X)
                      cl=.2, # Effect of X on Y
@@ -55,7 +53,7 @@ compare_models <- function(data) {
 ## Test one set of parameters
 ################################################################################
 
-data <- gen_data(rho=.5, cl=.5, stability=0, resid=.5)
+data <- gen_data(rho=0, cl=.5, stability=.1, resid=.3)
 cor(data)
 describe(data)
 compare_models(data)
@@ -70,8 +68,8 @@ compare_models(data)
 ## predictors
 
 rhos <- seq(0, .9, by = .3)
-cls <- seq(.1, 1, by = .3)
-stabilities <- seq(.1, 1, by = .3)
+cls <- seq(0, 1, by = .25)
+stabilities <- seq(0, 1, by = .25)
 resids <- seq(.3, .9, by = .3)
 
 values <- expand.grid(rho=rhos, cl=cls, stability=stabilities, resid=resids)
