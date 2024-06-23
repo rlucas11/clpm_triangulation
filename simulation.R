@@ -53,7 +53,7 @@ compare_models <- function(data) {
 ## Test one set of parameters
 ################################################################################
 
-data <- gen_data(rho=0, cl=.5, stability=.1, resid=.3)
+data <- gen_data(rho=-.8, cl=0, stability=1, resid=.5)
 cor(data)
 describe(data)
 compare_models(data)
@@ -71,31 +71,50 @@ rhos <- seq(0, .9, by = .3)
 cls <- seq(0, 1, by = .25)
 stabilities <- seq(0, 1, by = .25)
 resids <- seq(.3, .9, by = .3)
+sims <- 20
 
 values <- expand.grid(rho=rhos, cl=cls, stability=stabilities, resid=resids)
 
-output <- matrix(
-    nrow = nrow(values),
-    ncol = 3
+output <- matrix(NA,
+    nrow = sims * nrow(values),
+    ncol = 7
 )
 
-for (i in 1:nrow(values)) {
-    output[i, ] <- unlist(
-        compare_models(gen_data(
-            rho = values[i, 1],
-            cl = values[i, 2],
-            stability = values[i, 3],
-            resid = values[i, 4],
-            yMean = 0,
-            ySd = 1,
-            xMean = 0,
-            xSd = 1
-        ))
-    )
+for (s in 1:sims) {
+    for (i in 1:nrow(values)) {
+        row_num <- (s - 1) * nrow(values) + i
+        output[row_num, ] <- unlist(
+            c(
+                unlist(
+                    compare_models(gen_data(
+                        rho = values[i, 1],
+                        cl = values[i, 2],
+                        stability = values[i, 3],
+                        resid = values[i, 4],
+                        yMean = 0,
+                        ySd = 1,
+                        xMean = 0,
+                        xSd = 1
+                    ))
+                ),
+                values[i, ]
+            )
+        )
+    }
 }
 
-final <- cbind(values, output)
-names(final)[5:7] <- c("standard", "reversed", "difference")
+
+final <- as.data.frame(output)
+names(final) <- c("standard", "reversed", "difference", names(values))
+
+final_agg <- final %>%
+    group_by(rho, cl, stability, resid) %>%
+    summarise(
+        standard = mean(standard),
+        reversed = mean(reversed),
+        difference = mean(difference)
+    ) %>%
+    ungroup()
 
 ################################################################################
 ## Plots
@@ -103,7 +122,7 @@ names(final)[5:7] <- c("standard", "reversed", "difference")
 
 #### Main plots for reversed regression
 ## Plot data with residual variance
-final %>%
+final_agg %>%
     select(rho, cl, stability, resid, reversed) %>%
     ggplot(aes(x = cl, y = reversed, group = stability)) +
     facet_wrap(~rho + resid, ncol = 3, labeller=label_both) +
@@ -113,7 +132,7 @@ ggsave("coef2.png")
 
 #### Main plots for difference
 ## Plot data with residual variance
-final %>%
+final_agg %>%
     select(rho, cl, stability, resid, difference) %>%
     ggplot(aes(x = cl, y = difference, group = stability)) +
     facet_wrap(~rho + resid, ncol = 3, labeller=label_both) +
@@ -146,3 +165,5 @@ summary(lm(diff_g ~ subs_g + initial_g, data = data_all[which(data_all$add==1),]
 
 summary(lm(subs_g ~ add_rem + initial_g, data = data_all[which(data_all$add==1),]))
 summary(lm(subs_g ~ add_rem, data = data_all[which(data_all$add==1),]))
+
+
