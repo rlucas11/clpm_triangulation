@@ -53,7 +53,7 @@ compare_models <- function(data) {
 ## Test one set of parameters
 ################################################################################
 
-data <- gen_data(rho=-.8, cl=0, stability=1, resid=.5)
+data <- gen_data(rho0, cl=1, stability=1, resid=.6)
 cor(data)
 describe(data)
 compare_models(data)
