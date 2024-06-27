@@ -53,7 +53,7 @@ compare_models <- function(data) {
 ## Test one set of parameters
 ################################################################################
 
-data <- gen_data(rho0, cl=1, stability=1, resid=.6)
+data <- gen_data(rho=.3, cl=.75, stability=.25, resid=.3)
 cor(data)
 describe(data)
 compare_models(data)
@@ -167,3 +167,55 @@ summary(lm(subs_g ~ add_rem + initial_g, data = data_all[which(data_all$add==1),
 summary(lm(subs_g ~ add_rem, data = data_all[which(data_all$add==1),]))
 
 
+################################################################################
+## Test from correlation matrix
+################################################################################
+
+library(lavaan)
+
+
+reversal <- function(xy1, y1y2, xy2) {
+    cor_mat <- matrix(
+        c(
+            1, xy1, xy2,
+            xy1, 1, y1y2,
+            xy2, y1y2, 1
+        ),
+        nrow = 3, ncol = 3
+    )
+
+
+    colnames(cor_mat) <- c("x", "y1", "y2")
+    rownames(cor_mat) <- c("x", "y1", "y2")
+
+    lm1 <- "y1 ~ x + y2"
+    fit <- sem(lm1, sample.cov = cor_mat, sample.nobs = 10000)
+    return(coef(fit))
+}
+
+
+## Specify correlation matrix
+## Not some values are not admissable
+xy1 <- -.006614715
+y1y2 <- .091569729
+xy2 <- .995171173
+reversal(xy1, y1y2, xy2)
+
+xy1 <- .3007470
+y1y2 <- .5563501
+xy2 <- .4620675
+reversal(xy1, y1y2, xy2)
+
+
+
+## Compare to generating model
+data <- gen_data(rho=.3, cl=.2, stability=.3, resid=.5)
+cor(data)
+describe(data)
+compare_models(data)
+
+bx <- (xy1 - xy2*y1y2)/(1 - y1y2^2)
+bx
+
+by2 <- (y1y2 - xy2*xy1)/(1 - y1y2^2)
+by2
