@@ -116,9 +116,14 @@ final_agg <- final %>%
     ) %>%
     ungroup()
 
+write_csv(final_agg, "simulated_data.csv")
+
 ################################################################################
 ## Plots
 ################################################################################
+
+## Use previously simulated data
+final_agg <- read_csv("simulated_data.csv")
 
 #### Main plots for reversed regression
 ## Plot data with residual variance
@@ -126,7 +131,8 @@ final_agg %>%
     select(rho, cl, stability, resid, reversed) %>%
     ggplot(aes(x = cl, y = reversed, group = stability)) +
     facet_wrap(~rho + resid, ncol = 3, labeller=label_both) +
-    geom_line(aes(color = stability))
+    geom_line(aes(color = stability)) +
+    geom_hline(yintercept=0, color = "red")
 
 ggsave("coef2.png")
 
@@ -136,7 +142,8 @@ final_agg %>%
     select(rho, cl, stability, resid, difference) %>%
     ggplot(aes(x = cl, y = difference, group = stability)) +
     facet_wrap(~rho + resid, ncol = 3, labeller=label_both) +
-    geom_line(aes(color = stability))
+    geom_line(aes(color = stability)) +
+    geom_hline(yintercept=0, color = "red")
 
 ggsave("coef3.png")
 
