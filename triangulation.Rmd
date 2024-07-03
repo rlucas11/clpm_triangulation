@@ -1,0 +1,354 @@
+---
+title: "Detecting Spurious Effects in Cross-Lagged Panel Models: Triangulation is Not a Valid Test"
+shorttitle: "Triangulation in CLPM"
+author: 
+  - name: Richard E. Lucas
+    affiliation: 1
+    corresponding: yes    # Define only one corresponding author
+    address: "316 Physics Rd., Michigan State University, East Lansing, MI 48823"
+    email: "lucasri@msu.edu"
+  - name: Rebekka Weidmann
+    affiliation: 2
+  - name: Mark J. Brandt
+    affiliation: 1
+affiliation:
+  - id: 1
+    institution: "Department of Psychology, Michigan State University"
+  - id: 2
+    institution: "Department of Psychology, Brigham Young University"
+  
+abstract: |
+  The cross-lagged panel model (CLPM) is an analytic technique used to examine the reciprocal causal effects of two or more variables assessed on two or more occasions. Although widely used, the CLPM has been criticized for relying on implausible assumptions, the violation of which can often lead to biased estimates of causal effects. Recently, a *triangulation method* has been proposed to identify spurious effects in simple CLPM analyses [e.g.; @sorjonen_spurious_2024]. We use simulations and a discussion of the formulas underlying regression coefficients to show that this method does not provide a valid indicator of spuriousness. This method identifies true causal effects as spurious in realistic situations and should not be used to diagnose whether a causal effect estimated from the CLPM is spurious or not. There are clear reasons to doubt causal estimates from the CLPM, but the results of the triangulation test do not add information about whether such estimates are spurious or not. 
+  
+  
+keywords: "cross-lagged panel model; causal inference; longitudinal"
+
+wordcount: 
+
+header-includes:
+   - \usepackage{setspace}
+   - \AtBeginEnvironment{tabular}{\singlespacing}
+   - \AtBeginEnvironment{lltable}{\singlespacing}
+   - \AtBeginEnvironment{ThreePartTable}{\singlespacing}
+   - \AtBeginEnvironment{tablenotes}{\doublespacing}
+   - \captionsetup[table]{font={stretch=1.5}}
+   - \captionsetup[figure]{font={stretch=1.5}}
+   - \raggedbottom
+
+bibliography:
+   - '/home/rich/Dropbox/MyLibraryZ2.bib'
+   - r-references.bib
+floatsintext: yes
+mask: no
+linenumbers: no
+documentclass: "apa6"
+classoption: "man"
+output: 
+  papaja::apa6_pdf:
+  fig_caption: yes
+
+---
+
+```{r setup, include=FALSE}
+## Load packages
+library(MASS)
+library(tidyverse)
+library(ggplot2)
+library(psych)
+
+## Set options
+options(knitr.kable.NA='')
+
+```
+
+```{r functions, include=FALSE}
+
+## Function to generate Initial, Change, and Final scores
+gen_data <- function(n=10000,
+                     rho=.5, # Correlation between Initial (Y1) and Change (X)
+                     cl=.2, # Effect of X on Y
+                     stability=.5, # Stability of Y
+                     yMean=0, 
+                     ySd=1,
+                     xMean=0,
+                     xSd=1,
+                     resid=1.5 # Residual variance in Final (Y2)
+                     ) {
+    
+    ## Generate initial variables
+    xyCov <- rho*xSd*ySd
+    sigma <- matrix(c(ySd^2, xyCov, xyCov, xSd^2), 2, 2)
+    mu <- c(yMean, xMean)
+    data <- as.data.frame(mvrnorm(n = n, mu = mu, Sigma = sigma))
+    names(data) <- c("initial", "change")
+
+    ## Create outcome
+    data$final <- data$initial * stability +
+        data$change * cl +
+        rnorm(n, mean = 0, sd = resid)
+
+    return(data)
+}
+
+## Function to compute triangulation test
+## First coefficient is standard test of cross-lagged effect
+## Second coefficient is reversal test
+## Third coefficient is difference test
+compare_models <- function(data) {
+    model1 <- lm(final ~ change + initial, data = data)
+    model2 <- lm(initial ~ change + final, data = data)
+    diff  <- cor(data$change, data$final - data$initial)
+    comparison <- list(
+        'Final on Change' = coef(model1)[2],
+        'Initial on Change' = coef(model2)[2],
+        difference = diff
+    )
+    return(comparison)
+}
+
+```
+
+Scientific investigations often proceed by first identifying robust associations between theoretically meaningful variables and then clarifying the causal processes that underlie these associations. Ideally, these causal effects can be established definitively through carefully designed experimental interventions, but for many scientific questions, the hypothetical causal variables cannot be manipulated. This could be due to practical or ethical reasons, and in such cases, observational methods must be used. 
+
+Establishing causality with observational methods is difficult, and a great deal of methodological literature across the social (and other) sciences addresses the challenges of these approaches. Researchers often turn to longitudinal data to help establish causality when experiments are not possible. This is because longitudinal data---with appropriate analytic techniques---allow researchers to control for certain types of common confounds (specifically, time-invariant confounds like socioeconomic status or personality traits). Longitudinal methods also allow certain assumptions to be relaxed when estimating causal effects [for a discussion, see @rohrer_these_2021]. 
+
+Despite their clear strengths, longitudinal methods must be applied thoughtfully. As is true for all quantitative methods, the interpretation of estimates from longitudinal models rests on specific assumptions. Many these assumptions are not testable, at least in the same data used to test the causal question. Commonly used methods for examining causal questions can result in biased estimates if assumptions are violated, and debates about the plausibility of assumptions that underlie these methods are common [e.g., @hamaker_critique_2015; @lucas_why_2023; @ludtke_comparison_2022].
+
+One widely used method for analyzing causal effects in longitudinal data is the cross-lagged panel model [CLPM, see @duncan_linear_1969; @heise_causal_1970; @finkel_causal_1995]. The CLPM can be used to estimate causal effects when two or more variables are assessed at two or more waves. For instance, if two variables *X* and *Y* are assessed on two occasions, then the causal effect of *X* on *Y* can be estimated (again, with certain assumptions) by regressing Time 2 *Y* on Time 1 *X*, controlling for Time 1 *Y*. The causal effect of *Y* on *X* can be estimated by regressing Time 2 *X* on Time 1 *Y*, controlling for Time 1 *X*. Unfortunately, the CLPM rests on assumptions that are unlikely to be true, which means that spurious results are likely when this model is used [@hamaker_critique_2015; @lucas_why_2023]. For this reason, researchers have advocated for alternative models that account for the unobserved heterogeneity that is likely to exist as a way to reduce bias in the estimated causal effects [e.g., @berry_practical_2017; @dishop_tutorial_2021; @hamaker_critique_2015; @lucas_why_2023; @zyphur_data_2020]. Importantly, the proposed improvements to the CLPM all require at least three waves of data. @lucas_why_2023 showed that there is not enough information in two waves of data to isolate the causal effects; the same correlation matrix is equally consistent with data-generating models with and without true causal effects [also see @ployhart_two_2014; @rogosa_myths_1995]. 
+
+Recently, Sorjonen, Melin, and colleagues proposed a *triangulation method* for determining whether a causal effect estimated using the CLPM is likely to be spurious [e.g., @sorjonen_questioning_2024; @sorjonen_spurious_2024]. Importantly, this method can be applied when only two waves of data are available, which means that if valid, the method could establish confidence in causal effects without relying on more sophisticated models with more intensive data requirements than the simple CLPM. 
+
+-----------------------------------------------------------------------------------------------------
+Triangulation               Assumptions of the Triangulation    
+Method                      Method Given a True Causal Effect Critique
+--------------------------  --------------------------------- ---------------------------------------
+Step 1: Cross-Lagged Effect X1 positively predicts Y2         This pattern is consistent with many
+                            controlling for Y1                true and spurious causal effects
+
+Step 2: Reversal Test       X1 negatively predicts Y1         Positive coefficients can be expected
+                            controlling for Y2                for true causal effects when X1 and Y1
+                                                              are correlated (see Figure 2)
+
+Step 3: Difference Test     X1 positively predicts the        Negative coefficients can be expected
+                            difference between Y2 and Y1      for true causal effects when X1 and Y1
+                                                              are correlated (see Figure 3)
+-----------------------------------------------------------------------------------------------------
+
+Table: Summary of the Triangulation Method, Its Predictions for True Causal Effects, and The Critique from the Present Paper.
+
+
+
+The triangulation method involves running a series of regression analyses and comparing specific estimated coefficients with logically-derived expectations. The steps involved in this method are summarized in Table  To evaluate the causal effect of X on Y, for instance, one would first regress Time 2 *Y* on Time 1 *X* and *Y*, focusing on the coefficient for Time 1 *X*. If there was a true (positive) causal effect, this coefficient should be positive. Note that this step is equivalent to the critical causal test when using the standard CLPM. The next step (which we refer to as the *reversal* test from this point forward) is to reverse this regression and to predict Time 1 *Y* from Time 2 *Y* and Time 1 *X*. In this case, the authors argue, if there was a true causal effect, the sign should be reversed from that found in the previous step. So for a true causal positive effect of *X* on *Y*, the sign for this reversed regression should be negative. The final step (which we refer to as the *difference* test) is to calculate the difference between Time 1 *Y* and Time 2 *Y* and to regress this difference on *X* [this is equivalent to a gain-score analysis, see @kim_gain_2021, for a discussion of when gain scores like this can and cannot be used to estimate causal effects]. The authors argue that when true causal effects exist, the coefficient for this difference-score analysis will be positive. Sorjonen, Melin, and their colleagues have used this triangulation method repeatedly to refute causal claims made using the CLPM [@sorjonen_prospective_2022; @sorjonen_questioning_2022-1; @sorjonen_questioning_2022; @sorjonen_prospective_2023; @sorjonen_spurious_2023-2; @sorjonen_spurious_2023-1; @sorjonen_spurious_2023; @sorjonen_distorted_2023; @sorjonen_prospective_2024; @sorjonen_spurious_2024-2; @sorjonen_spurious_2024]. 
+
+As an example, @sorjonen_spurious_2024 reanalyzed data from a previously published meta-analysis examining the reciprocal associations between work experiences and self-esteem [@krauss_work_2022]. The prior study reported results of a meta-analytic CLPM, which was conducted using estimated correlations from prior research. The authors of this prior study interpreted the positive cross-lagged effects as evidence for both effects of self-esteem on later work experiences and of work experiences on later self-esteem. @sorjonen_spurious_2024 used their triangulation method and found results that were consistent with their predictions for spurious effects. They then concluded that their "reanalyses found prospective effects between work experiences and self-esteem to be spurious" (p. 539). However, Sorjonen et al.'s claim that their triangulation method identifies spurious effects is not justified (as we explain below). 
+
+The authors of the triangulation method have presented two types of evidence to support its validity. First, they showed that in situations where there is no true causal effect, their method can detect spurious effects that would otherwise be treated as causal evidence [e.g., @sorjonen_spurious_2024]. Second, they showed (through logic and an actual experiment) that when there is a true causal effect, the predicted pattern for non-spurious effects emerges [@sorjonen_aqua_2024]. We agree with each piece of evidence that they provided. Indeed, the method might at first appear to be a promising approach to detecting spuriousness because the authors' predictions are correct in these two situations: (a) when the predictor and initial measure of the outcome are uncorrelated (as in a true experiment) (b) when the predictor and initial measure of the outcome are correlated but there is no true causal effect. 
+
+Unfortunately, as we show below, the triangulation method cannot detect spurious effects in situations where the CLPM is most likely to be used. Specifically, the method cannot distinguish true from spurious effects when the predictor and initial measure of the outcome are correlated. In this paper we show that with many plausible data-generating models, the proposed triangulation method signals spurious effects when these effects are in fact real. We also review the mathematics underlying the triangulation method to further support our conclusions. Based on these simulations and mathematical deductions, we propose that the triangulation method is not diagnostic regarding whether a specific effect is spurious. 
+
+## Detecting Spurious Effects
+
+The argument in support of the triangulation method appears to be the same across the many papers published by these authors. Here we focus on @sorjonen_spurious_2024, published in the *European Journal of Personality*, which addresses the question of whether work experiences affect self-esteem and vice versa. When justifying their method, the authors use a specific hypothetical data-generating model to illustrate how their method works. They specify two (latent) variables, *X* and *Y*, that correlate strongly (in this case, .80). They then simulate two indicators of the latent *Y* variable---*Y1* and *Y2*, each of which has a reliability of .80. This data-generating model is shown in Panel A of Figure \@ref(fig:dgm). 
+
+
+```{r dgm, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Two possible data-generating models that can produce indistinguishable correlation matrices. Panel A is a correlated-trait model with no causal effects; Panel B is a causal-effects model where X is correlated with Y1 but also has a causal effect on Y2.'}
+knitr::include_graphics("images/dgm.pdf")
+```
+
+Next, @sorjonen_spurious_2024 use an analysis that is equivalent to the CLPM to predict *Y2* from *X* and *Y1*. They show that this analysis leads to a spurious path from *X* to *Y2* after controlling for *Y1*, even though there is no causal effect in the data-generating model. In other words, the authors test and find support for the model in Panel B of Figure \@ref(fig:dgm) (in which there is a true causal effect), despite the fact that the data were generated using the model shown in Panel A (where there is no causal effect). 
+
+Finally, they use their triangulation method to show that when the regression equation is reversed to predict *Y1* from *X* and *Y2*, the coefficient for *X* is positive. They then reason that if this coefficient is positive when the data were generated from a model with no causal effect, then the existence of this positive coefficient must signal a spurious effect. This conclusion, however, is incorrect. The existence of a positive coefficient when reversing the regression equation can only be interpreted as a signal of a spurious effect if the coefficient is positive *if and only if* the estimated causal effect is spurious. Although we agree that the sign will be positive when the estimated causal effect is spurious, it will *also* be positive in many cases where a *true* causal effects exist. Thus, the triangulation method suffers from low specificity, as it provides false positives when evaluating CLPM findings. 
+
+The authors' own hypothetical example illustrates the problem with their approach. Panel B of Figure \@ref(fig:dgm) is a diagram of a data-generating model that incorporates a true causal effect of *X* on *Y2*. The problem with two-wave longitudinal studies is that the exact same correlation matrix can be consistent with these two very different underlying data-generating models, one that includes a causal effect and one that does not [@lucas_why_2023]. There is simply not enough information in the three correlations in this three-variable correlation matrix to distinguish between these two plausible models[^x2]. And although it is true that the method proposed by Sorjonen, Melin, and colleagues will detect a spurious causal effect when the true data-generating model is that specified in Panel A; it will also necessarily detect a spurious effect when the true data-generating model is that specified in Panel B, where there is a true causal effect. Again, this is due to the fact that the correlation matrix underlying their regression tests will be the same in either case. Thus, although the proposed pattern of coefficients does emerge when estimated causal effects from the CLPM are spurious, this pattern will also emerge when true causal effects exist. Thus, the test is not diagnostic for spurious effects. In later sections, we conduct simulations to show what conditions affect these coefficients and explain these simulations by considering the links between coefficients in multiple regression and their underlying correlations. 
+
+[^x2]: Note that adding an additional observation of X at Time 2 does not help, though adding a third wave for both variables does [@lucas_why_2023]. 
+
+
+## Detecting True Effects
+
+Recently, @sorjonen_aqua_2024 developed an additional line of argumentation to support the validity of their approach. Instead of showing that the procedure correctly identifies spurious results, in this paper, they used an experiment to demonstrate that the model can also correctly identify true causal effects. The experiment they conducted was simple: They began with cups filled with different amounts of water, and thus had had different weights. These initial weights serve as the initial measure of the outcome variable (*Y1*). They then added different amounts of water to different cups, a manipulation (*X*) that has a causal effect on the final weight of the cups (*Y2*). They showed that in this situation, their set of regression analyses correctly identified that the causal effect was not spurious. The effect of *X* on *Y2* controlling for *Y1* was positive, the effect of *X* on *Y1* controlling for *Y2* was negative, and the effect of *X* on the difference between *Y2* and *Y1* was positive. The authors argued that this demonstrates the validity of their approach. 
+
+We agree that in this situation, the pattern of coefficients that signals a true causal effect will emerge. However, this example highlights an important flaw in the approach. The CLPM estimates the effect of a predictor on an outcome, controlling for an earlier measure of this outcome. This procedure is used specifically to remove the effects of confounds that simultaneously affect the predictor and outcome. In other words, the CLPM is useful when the association between the predictor and outcome is confounded by some third variable; longitudinal data can help address some of these confounds [@rohrer_these_2021]. In the authors' example, there can be no confounds that need to be controlled. *X*, by design, is uncorrelated with the initial measure of *Y*, so in this example, *Y1* does not need to be controlled. Regressing *Y2* on *X* recovers the true causal effect, even without controlling for the earlier measure of *Y*. 
+
+This can be verified in the authors' own data (available here: https://osf.io/dpvzr/). We downloaded their data and tested a model predicting the final weight of the cups from the manipulation (amount added) and the resulting coefficient was 14.33. The coefficient from a model that controls for initial weight (which is, of course, highly correlated with the outcome) was 14.40 (these estimates are not identical because there was measurement error and thus, the correlation between the two predictors was not precisely 0). In other words, this example demonstrates that the method for detecting spurious causal effects works *in a situation where the CLPM would not be needed*. As with the hypothetical examples used in earlier papers, this example does not speak to whether the method can distinguish true from spurious effects. 
+
+## Simulating Different Data-Generating Models
+
+To clarify when the proposed test for spuriousness incorrectly detects true causal effects as spurious, we simulated data from a broad range of data-generating models. Specifically, we generated data that varied in: (a) how strongly the initial predictor and outcome were correlated, (b) how stable the outcome variable was, (c) the size of the cross-lagged effect, and (d) how much residual variance there was in the final measure of the outcome variable. These are not the only parameters we could simulate, but we believe that, together, they highlight some of the critical problems with the triangulation method. 
+
+We created a function to generate data according to the four parameters described above (all code for the simulation is available at our OSF site: (https://osf.io/u49q5/). We generated data for four values of the initial correlation (0, .3, .6, and .9), five values of the stability coefficient (0, .25, .50, .75, and 1), five values of the cross-lagged effect (0, .25, .50, .75, and 1), and three values of the residual variance (.3, .6, and .9). For all parameters, we wanted to examine a broad range of values that ranged from no association to a strong association. For the initial correlation we did not include a value of 1 because it did not make sense to include a model where the predictor and initial outcome were perfectly correlated. Therefore, we included equally spaced values from 0 to .9. For the stability and cross-lagged effects we did want to include both 0 and 1 to capture associations ranging from no effect to an effect where a one unit change in the predictor leads to a one-unit change in the outcome. Therefore, we included five equally spaced values from 0 to 1. For the residual variance, the meaning of the specific values depends on the standard deviation of the simulated variables. The standard deviation for the predictor and initial measure of the outcome were set to be 1; the relative contribution of the residual variance depends on the size of the corresponding stability and cross-lagged paths. We created 20 datasets, each with a sample of 10,000 simulated participants, for each set of the 300 possible combinations of these four parameters. For simplicity sake, we only simulated variables that were positively correlated with one another (or uncorrelated). Because the triangulation procedure involves predictions of sign reversals, it is easier to keep track of these predictions if all associations have the same sign. The principles we identify, however, generalize to situations where the variables have negative correlations. 
+
+
+```{r runSim, include=FALSE, cache=TRUE}
+
+## Select values to simulate
+## Omit 0 for CL and Stability because they can create perfectly correlated
+## predictors
+
+rhos <- seq(0, .9, by = .3)
+cls <- seq(0, 1, by = .25)
+stabilities <- seq(0, 1, by = .25)
+resids <- seq(.3, .9, by = .3)
+sims <- 20
+
+values <- expand.grid(rho=rhos, cl=cls, stability=stabilities, resid=resids)
+
+output <- matrix(NA,
+    nrow = sims * nrow(values),
+    ncol = 7
+)
+
+for (s in 1:sims) {
+    for (i in 1:nrow(values)) {
+        row_num <- (s - 1) * nrow(values) + i
+        output[row_num, ] <- unlist(
+            c(
+                unlist(
+                    compare_models(gen_data(
+                        rho = values[i, 1],
+                        cl = values[i, 2],
+                        stability = values[i, 3],
+                        resid = values[i, 4],
+                        yMean = 0,
+                        ySd = 1,
+                        xMean = 0,
+                        xSd = 1
+                    ))
+                ),
+                values[i, ]
+            )
+        )
+    }
+}
+
+
+final <- as.data.frame(output)
+names(final) <- c("Standard", "Reversed", "Difference",
+                  "Correlation", "CrossLag", "Stability", "Residual")
+
+final_agg <- final %>%
+    group_by(Correlation, CrossLag, Stability, Residual) %>%
+    summarise(
+        Standard = mean(Standard),
+        Reversed = mean(Reversed),
+        Difference = mean(Difference)
+    ) %>%
+    ungroup()
+
+
+```
+
+
+```{r sim1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Coefficients from the reversal test, predicting the initial measure of Y from X and Y2. Correlation is the initial correlation between Y1 and X1. Residual is the residual variance of Y2.', fig.height=8}
+
+
+################################################################################
+## Plots
+################################################################################
+
+#### Main plots for reversed regression
+## Plot data with residual variance
+final_agg %>%
+    select(Correlation, CrossLag, Stability, Residual, Reversed) %>%
+    ggplot(aes(x = CrossLag, y = Reversed, group = Stability)) +
+    facet_wrap(~Correlation + Residual, ncol = 3, labeller=label_both) +
+    geom_line(aes(color = Stability)) +
+    geom_hline(yintercept=0, color = "red")
+
+
+```
+
+
+We focus on the first second and third tests from the triangulation method. The first step is not used to detect spuriousness (it is the estimate that might be spurious) and it will be equivalent to the specified cross-lagged parameter value in our data-generating model (because the regression equation that is being tested is identical to the data-generating model). 
+
+### Reversal Test
+
+Figure \@ref(fig:sim1) shows the simulations for the reversal test: the estimates for the reversed regression predicting *Y1* from *X* and *Y2*. Because all effects in this simulation were specified to be positive, this coefficient should be negative when true lagged effects exist according to the triangulation method. In other words, for all results in this figure (with the exception of the leftmost values in each panel, where the causal effect is 0), the reversal test specifies that the coefficients should be negative, due to the fact that there are true causal effects. 
+
+Consistent with our argument above, this prediction only holds when the predictor and the initial measure of the outcome are uncorrelated. The correlation between *X* and *Y1* are 0 for all simulations in Row 1 of the figure, and indeed, all coefficients are negative in this row. Remember, however, that when the predictor and outcome are uncorrelated, the CLPM would not need to be used as there are no confounds to control. The other rows show that as soon as a correlation between *X* and *Y1* is introduced, positive coefficients are possible, even in the presence of true causal effects. 
+
+A slightly unrealistic (but not implausible) example highlights one possible reason why this occurs. Consider a case where *X* and *Y1* are correlated .4, where there is a true effect of *X* on *Y2* of .6, but there is no stability of *Y* from *Y1* to *Y2* (independent of the stability due to the correlation between *Y1* and *X* and the effect of *X* on *Y*). We simulated data from this data-generating model (with *X* and *Y1* having a mean of 0 and SD of 1 and *Y2* having a residual variance of .5), which resulted in the correlation matrix in the top panel of Table \@ref(tab:example).
+
+
+```{r example, echo=FALSE, message=FALSE, warning=FALSE, tab.cap='Estimates from the Reversal test when the stability of Y is 0. The first panel shows the correlation matrix; the second panel shows the standard test from the CLPM; the third panel shows the results of the reversal test.'}
+
+cor_data <- gen_data(rho=.4, cl=.6, stability=0, resid=.5)
+names(cor_data) <- c("Y1", "X", "Y2")
+cor_mat <- cor(cor_data)
+
+m1 <- lm(Y2 ~ X + Y1, data = cor_data)
+m2 <- lm(Y1 ~ X + Y2, data = cor_data)
+
+knitr::kable(
+           list(cor_mat,
+                broom::tidy(m1)[1:3],
+                broom::tidy(m2)[1:3]
+                ), digits=2, booktabs=TRUE, valign='t'
+     )
+
+
+
+```
+
+
+If you fit a regression model to these data predicting *Y2* from *Y1* and *X*, you recover the parameters from the data-generating model (the coefficient for *X* is `r coef(m1)[[2]]` and for *Y1* is `r coef(m1)[[3]]`). However, if you conduct the reversal test from the triangulation method, the coefficient for *X* predicting *Y1*, controlling for *Y2* is `r coef(m2)[[2]]`. In this model, we know there is actually a causal effect (because we specified it in the data-generating process), but the prediction of a negatively signed coefficient for a true effect is not confirmed. The  reason is that if there is a correlation between *X* and *Y1*, but *Y2* is uncorrelated with *Y1* (independent of *X*), the reversal regression reduces to an estimate of the zero-order correlation between *X* and *Y* (in this case, `r round(cor_mat[[2,1]], 2)`; the estimate is not exactly the same because of measurement error in *Y2*). The solid black line in each panel o Figure \@ref(fig:sim1) represents the models where stability was 0, and in these cases, the coefficient from the reversal test is always equal to the correlation between *X* and *Y1*, regardless of the other parameters used to simulate the data. 
+
+Indeed, this example provides hints as to why the reversal test of spuriousness fail. Consider the equation for the regression coefficient for the reversal test (predicting *Y1* from *X* and *Y2*): $$\beta_{1} = \frac{r_{y1.x} - r_{y1.y2} \times r_{x.y2}} {1 - r_{x.y2}^{2}}$$ In this reversal-test equation, $r_{y1.x}$ is the correlation between *X* and *Y1*, $r_{y2.y1}$ is the correlation between *Y1* and *Y2* (the stability of Y), and $r_{x.y2}$ is the correlation between *X* and *Y2* (or the correlation between the two predictors in the model for the reversal test). 
+
+The sign of this coefficient---a critical test in the triangulation method---will be determined by the numerator of this equation. In the case that @sorjonen_aqua_2024 highlight, the case of a true experiment, $r_{y1.x}$ will be 0, which means that the coefficient will be negative (unless one other pair of variables is also uncorrelated, in which case, it will be 0). In the case we highlighted, where the stability of the *Y* variables is 0, the second term in the numerator will reduce to zero, resulting in a coefficient that is equivalent to the correlation between *X* and *Y1*. This equation shows that---holding the correlation between *X* and *Y1* constant---anything that reduces the second term in the numerator will make the coefficient less negative/more positive. In other words, for (positively) correlated predictors in a standard CLPM, the coefficient for this reversal test will be more likely to be positive as (a) stability of the outcome measure decreases, (b) the true cross-lagged effect decreases, and (c) the amount of residual variance in the Time 2 outcome increases (which would reduce the correlation between the Time 2 outcome and either variable in the model). Each of these patterns can be seen in Figure \@ref(fig:sim1)[^anomalies]. 
+
+[^anomalies]: Note that the patterns of increasing or decreasing coefficients are mostly consistent across panels of Figure \@ref(fig:sim1), but there are some exceptions when the correlations between *X* and *Y1* are weak and when the residual variance in *Y2* is low. [more]
+
+One response to our critique of the triangulation method might be to highlight that although it is not *necessarily* true that spurious effects will lead to negative coefficients, they might *often* do so. Indeed, for many panels in Figure \@ref(fig:sim1), the majority of simulated coefficients were negative, especially as the true causal effect increased in size. However, this argument requires some knowledge of which of the parameter values we used in the simulation matches reality, and that is something that we believe is unknowable at this time. In fact, @orth_effect_2022 meta-analytically summarized effect sizes from cross-lagged panel studies, and the vast majority of these effects were below .12, which was the 75th percentile for effects. Focusing only on the simulated coefficients for true causal effects of this size, positive coefficients are common. 
+
+### Difference Test
+
+Figure \@ref(fig:sim2) shows the results for the *difference* test proposed by the proponents of the triangulation method, in which the difference between *Y2* and *Y1* is regressed on *X*. In this case, the prediction is that for true effects, this coefficient should be positive. We spend less time discussing these results for two reasons. First, in their description of the triangulation method, the authors provide much less detail about the derivation of this test and the logic behind it. Second, the utility of this gain-score approach for examining causal questions was thoroughly discussed by @kim_gain_2021. They noted that although the coefficient that Sorjonen, Meli, and co-authors propose as being diagnostic of a true causal effect can be used in this way, this is true only under very restrictive assumptions. For instance, if we assume that *Y1* has a causal effect on *Y2* (an assumption that is common in situations where the CLPM would be used), then the gain-score approach does not recover unbiased estimates of the causal effect. In any case, Figure \@ref(fig:sim2) shows that negative effects can often emerge even in the presence of true causal effects. Indeed, some of the factors that lead to these negative coefficients (smaller true causal effects of *X* and weaker stability of *Y*) are those that lead to estimates that contradict predictions for the reversal test, too. Unlike the reversal test, increasing residual variance in *Y2* does not lead to higher likelihood of tests that are incorrectly flagged as being spurious. 
+
+```{r sim2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Coefficients from the difference test, predicting the difference between Y2 and Y1 from X. Correlation is the initial correlation between X and Y1; residual is the residual variance in Y2.', fig.height=8}
+
+final_agg %>%
+    select(Correlation, CrossLag, Stability, Residual, Difference) %>%
+    ggplot(aes(x = CrossLag, y = Difference, group = Stability)) +
+    facet_wrap(~Correlation + Residual, ncol = 3, labeller=label_both) +
+    geom_line(aes(color = Stability)) +
+    geom_hline(yintercept=0, color = "red")
+
+
+```
+
+## Discussion
+
+Methodologists and researchers who use quantitative methods in applied settings will prefer to use methods that provide answers to theoretically interesting questions as efficiently as possible[^efficient]. The CLPM has been widely used precisely because it requires so little---just two variables assessed on two occasions---to do so much. The hope is that simply by controlling for prior measures of an outcome variable, most of the confounding effect off third variables can be controlled, resulting in unbiased estimates of causal effects. Unfortunately, the method is not up to this task; because of unmeasured heterogeneity and other statistical issues, estimated lagged effects can often be found, even when no true causal effect exists [@hamaker_critique_2015; @lucas_why_2023]. 
+
+[^efficient]: To be clear, we are using the term "efficient" not in the statistical sense but in the common-language sense in which a task is accomplished more quickly and with fewer resources.
+
+Sorjonen, Melin, and their colleagues proposed a triangulation method that maintains the efficiency of the CLPM, while purportedly providing additional evidence about whether the estimates from this model are spurious or not. If valid, this approach would solve a critical problem in the field, as most other solutions to the statistical problems of the CLPM require additional waves of data [e.g., @hamaker_critique_2015], making them more data intensive, more expensive, and less efficient than the CLPM (at least with its minimal requirements). Unfortunately, the triangulation method cannot be used to diagnose spurious effects. The problem is that the same correlation matrix---in particular, one that is consistent with a spurious effect resulting from regression to the mean or the effects of unobserved heterogeneity---can also be consistent with a data-generating model that includes a true causal effect. Thus, conclusions about spurious effects should not be drawn from the triangulation method. 
+
+In this paper, we used simulations and the formulas for regression coefficients from multiple-regression analyses to show that predictions from the triangulation method are only guaranteed to hold in situations where the CLPM and related methods are not needed---when the initial measures of the two variables under investigation are not correlated. As soon as a correlation between these two variables is introduced, which is precisely when models like the CLPM and its more sophisticated alternatives are needed, the predictions from the proposed triangulation method will not hold. Specifically, when these variables are correlated, the predicted negative coefficient from the reversal test will become more positive as (a) the stability of the outcome gets weaker, (b) the true causal effect gets smaller, and (c) (in most cases) as more residual variance is included in the subsequent measure of the outcome. Importantly, the parameter values chosen for our simulations cover a range of realistic values. 
+
+In short, although the goals of the triangulation method are commendable, the method does not provide valid evidence about whether an effect from the CLPM is spurious or not. The advocates of this approach have published many papers reanalyzing data from publications that used the CLPM, typically concluding that those results were spurious. Because of widely known limitations of the CLPM, we do not wish to defend the conclusions from the original papers. However, the application of the triangulation method to them does not provide any new information, and claims about spuriousness are not justified. 
+
+## Author Contributions
+
+Richard E. Lucas conceptualized the study and wrote the initial analysis code and the first draft of the paper. 
+
+Rebekka Weidmann and Mark Brandt contributed to the conceptualization and edited the text.
+
+## Conflicts of Interest
+
+The authors declare that there were no conflicts of interest with respect to the authorship or the publication of this article. 
+
+## Prior Versions
+
+A preprint of this paper was posted on the PsyArXiv preprint server:  https://osf.io/preprints/psyarxiv/.
+
+
+\newpage
+
+# References
+
+```{r create_r-references}
+papaja::r_refs(file = "r-references.bib", append = FALSE)
+```
+
