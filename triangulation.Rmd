@@ -255,6 +255,7 @@ final_agg <- final %>%
 ## Plot data with residual variance
 final_agg %>%
     select(Correlation, CrossLag, Stability, Residual, Reversed) %>%
+    mutate(Stability = as.factor(Stability)) %>%
     ggplot(aes(x = CrossLag, y = Reversed, group = Stability)) +
     facet_wrap(~Correlation + Residual, ncol = 3, labeller=label_both) +
     geom_line(aes(colour = Stability)) +
@@ -262,9 +263,7 @@ final_agg %>%
     theme_bw() +
     theme(panel.grid.major=element_blank(),
           panel.grid.minor=element_blank()) +
-    scale_colour_distiller(type="seq",
-                           direction=-1,
-                           palette="Greys")
+    scale_color_grey(start=0, end=.8)
 
 
 ```
@@ -306,7 +305,7 @@ knitr::kable(
 
 If you fit a regression model to these data predicting *Y2* from *Y1* and *X1*, you recover the parameters from the data-generating model (the coefficient for *X1* is `r coef(m1)[[2]]` and for *Y1* is `r coef(m1)[[3]]`). However, if you conduct the reversal test from the triangulation method, the coefficient for *X1* predicting *Y1*, controlling for *Y2* is `r coef(m2)[[2]]`. In this model, we know there is actually a causal effect (because we specified it in the data-generating model), but the prediction of a negatively signed coefficient for a true effect is not confirmed. The  reason is that if there is a correlation between *X1* and *Y1*, but *Y2* is uncorrelated with *Y1* (independent of *X1*), the reversal regression reduces to an estimate of the zero-order correlation between *X1* and *Y1* (in this case, `r round(cor_mat[[2,1]], 2)`; the estimate is not exactly the same because of measurement error in *Y2*). The solid black line in each panel of Figure \@ref(fig:sim1) represents the models where stability was 0, and in these cases, the coefficient from the reversal test is always equal to the correlation between *X1* and *Y1*, regardless of the other parameters used to simulate the data. 
 
-Indeed, this example provides hints as to why the reversal test of spuriousness fail. Consider the equation for the regression coefficient for the reversal test (predicting *Y1* from *X1* controlling for *Y2*): $$\beta = \frac{r_{X1,Y1} - r_{Y1,Y2} \times r_{X1,Y2}} {1 - r_{X1,Y2}^{2}}$$ In this reversal-test equation, $r_{X1,Y1}$ is the correlation between *X1* and *Y1*, $r_{Y1,Y2}$ is the correlation between *Y1* and *Y2* (the stability of Y), and $r_{X1,Y2}$ is the correlation between *X1* and *Y2* (or the correlation between the two predictors in the model for the reversal test). 
+Indeed, this example provides hints as to why the reversal test of spuriousness fail. Consider the equation for a regression coefficient, a discussion of which can help with the interpretation of the coefficient from the reversal test. The formula linking the underlying correlations (predicting *Y1* from *X1* controlling for *Y2*) to the coefficient is as follows: $$\beta_{R} = \frac{r_{X1,Y1} - r_{Y1,Y2} \times r_{X1,Y2}} {1 - r_{X1,Y2}^{2}}$$ In this equation, $r_{X1,Y1}$ is the correlation between *X1* and *Y1*, $r_{Y1,Y2}$ is the correlation between *Y1* and *Y2* (the stability of Y), and $r_{X1,Y2}$ is the correlation between *X1* and *Y2* (or the correlation between the two predictors in the model for the reversal test). 
 
 The sign of this coefficient---a critical test in the triangulation method---will be determined by the numerator of this equation. In the case that @sorjonen_aqua_2024 highlight, the case of a true experiment, $r_{X1,Y1}$ will be 0, which means that the coefficient will be negative (unless one other pair of variables is also uncorrelated, in which case, it will be 0). In the case we highlighted, where the stability of the *Y* variables is 0, the second term in the numerator will reduce to zero, resulting in a coefficient that is equivalent to the correlation between *X1* and *Y1*. This equation shows that---holding the correlation between *X1* and *Y1* constant---anything that reduces the second term in the numerator will make the coefficient less negative/more positive. In other words, for (positively) correlated predictors in a standard CLPM, the coefficient for this reversal test will be more likely to be positive as (a) stability of the outcome measure decreases, (b) the true cross-lagged effect decreases, and (c) the amount of residual variance in the Time 2 outcome increases (which would reduce the correlation between the Time 2 outcome and either variable in the model). Each of these patterns can be seen in Figure \@ref(fig:sim1)[^anomalies]. 
 
@@ -316,12 +315,13 @@ One response to our critique of the triangulation method might be to highlight t
 
 ### Difference Test
 
-Figure \@ref(fig:sim2) shows the results for the *difference test* proposed by the proponents of the triangulation method, in which the difference between *Y2* and *Y1* is regressed on *X1*. In this case, the prediction is that for true effects, this coefficient should be positive. The equation for the regression coefficient for the difference test is [@sorjonen_spurious_2024]: $$\beta = \frac{r_{X1,Y2} - r_{X1,Y1}} {\sqrt{2(1 - r_{Y1,Y2})}}$$ Again, the sign of this test is determined by the numerator of the equation, and it will be negative (signaling a spurious effect) when the correlation $r_{X1,Y2}$ is smaller than the correlation $r_{X1,Y1}$. This can happen in the presence of true causal effects if there is a substantial correlation between *X1* and *Y1*, low stability from *Y1* to *Y2*, and weak effects of *X1* on *Y2*. The simulations shown in Figure \@ref(fig:sim2) highlight these patterns. The factors that lead to negative coefficients in the presence of true causal effects are: stronger correlations between *X1* and *Y1*, smaller true causal effects of *X1*, and weaker stability of *Y*. The effect of increasing residual variance in *Y2* is less pronounced as compared to the effect for the reversal test. Again, these simulations (and the formula for the regression coefficient) show that the difference test is not diagnostic of spurious effects. 
+Figure \@ref(fig:sim2) shows the results for the *difference test* proposed by the proponents of the triangulation method, in which the difference between *Y2* and *Y1* is regressed on *X1*. In this case, the prediction is that for true effects, this coefficient should be positive. The equation for the regression coefficient for the difference test is [@sorjonen_spurious_2024]: $$\beta_{D} = \frac{r_{X1,Y2} - r_{X1,Y1}} {\sqrt{2(1 - r_{Y1,Y2})}}$$ Again, the sign of this test is determined by the numerator of the equation, and it will be negative (signaling a spurious effect) when the correlation $r_{X1,Y2}$ is smaller than the correlation $r_{X1,Y1}$. This can happen in the presence of true causal effects if there is a substantial correlation between *X1* and *Y1*, low stability from *Y1* to *Y2*, and weak effects of *X1* on *Y2*. The simulations shown in Figure \@ref(fig:sim2) highlight these patterns. The factors that lead to negative coefficients in the presence of true causal effects are: stronger correlations between *X1* and *Y1*, smaller true causal effects of *X1*, and weaker stability of *Y*. The effect of increasing residual variance in *Y2* is less pronounced as compared to the effect for the reversal test. Again, these simulations (and the formula for the regression coefficient) show that the difference test is not diagnostic of spurious effects. 
 
 ```{r sim2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Coefficients from the difference test, predicting the difference between *Y2* and *Y1* from *X1*. Correlation is the initial correlation between *X1* and *Y1*; residual is the residual variance in *Y2*.', fig.height=8}
 
 final_agg %>%
     select(Correlation, CrossLag, Stability, Residual, Difference) %>%
+    mutate(Stability = as.factor(Stability)) %>%
     ggplot(aes(x = CrossLag, y = Difference, group = Stability)) +
     facet_wrap(~Correlation + Residual, ncol = 3, labeller=label_both) +
     geom_line(aes(color = Stability)) +
@@ -329,9 +329,7 @@ final_agg %>%
     theme_bw() +
     theme(panel.grid.major=element_blank(),
           panel.grid.minor=element_blank()) +
-    scale_colour_distiller(type="seq",
-                           direction=-1,
-                           palette="Greys")
+    scale_color_grey(start=0, end=.8)
 
 ```
 
@@ -368,7 +366,4 @@ A preprint of this paper was posted on the PsyArXiv preprint server:  https://os
 
 # References
 
-```{r create_r-references}
-papaja::r_refs(file = "r-references.bib", append = FALSE)
-```
 
