@@ -44,7 +44,7 @@ linenumbers: no
 documentclass: "apa6"
 classoption: "man"
 output: 
-  papaja::apa6_pdf:
+  papaja::apa6_docx:
   fig_caption: yes
 
 ---
@@ -277,7 +277,7 @@ Figure \@ref(fig:sim1) shows the simulations for the reversal test: the estimate
 
 Consistent with our argument above, this prediction for the reversal test only holds when the predictor and the initial measure of the outcome are uncorrelated. The correlations between *X1* and *Y1* are 0 for all simulations in Row 1 of the figure, and indeed, all coefficients are negative in this row. Remember, however, that when the predictor and outcome are uncorrelated, the CLPM would not need to be used as there are no confounds to control. The other rows show that as soon as a correlation between *X1* and *Y1* is introduced, positive coefficients are possible, even in the presence of true causal effects. 
 
-A slightly unrealistic (but not implausible) example highlights one reason why positive coefficients from the reversal test emerge when the *X* and *Y1* are correlated. Consider a case where *X1* and *Y1* are correlated .4, where there is a true effect of *X* on *Y2* of .6, but there is no stability of *Y* from *Y1* to *Y2* (independent of the stability due to the correlation between *Y1* and *X1* and the effect of *X1* on *Y*). We simulated data from this data-generating model (with *X1* and *Y1* having a mean of 0 and SD of 1 and *Y2* having a residual variance of .5), which resulted in the correlation matrix in the top panel of Table \@ref(tab:example).
+A slightly unrealistic (but not implausible) example highlights one reason why positive coefficients from the reversal test emerge when the *X* and *Y1* are correlated. Consider a case where *X1* and *Y1* are correlated .4, where there is a true effect of *X1* on *Y2* of .6, but there is no stability of *Y* from *Y1* to *Y2* (independent of the stability due to the correlation between *Y1* and *X1* and the effect of *X1* on *Y*). We simulated data from this data-generating model (with *X1* and *Y1* having a mean of 0 and SD of 1 and *Y2* having a residual variance of .5), which resulted in the correlation matrix in the top panel of Table \@ref(tab:example).
 
 
 ```{r example, echo=FALSE, message=FALSE, warning=FALSE, tab.cap='Estimates from the Reversal test when the stability of Y is 0. The first panel shows the correlation matrix; the second panel shows the standard test from the CLPM; the third panel shows the results of the reversal test.'}
