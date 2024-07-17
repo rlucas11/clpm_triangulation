@@ -3,7 +3,7 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[
-  man,floatsintext]{apa6}
+  man,mask,floatsintext]{apa6}
 \usepackage{amsmath,amssymb}
 \usepackage{iftex}
 \ifPDFTeX
@@ -196,7 +196,6 @@
 \urlstyle{same}
 \hypersetup{
   pdftitle={Detecting Spurious Effects in Cross-Lagged Panel Models: Triangulation is Not a Valid Test},
-  pdfauthor={Richard E. Lucas1, Rebekka Weidmann2, \& Mark J. Brandt1},
   pdflang={en-EN},
   pdfkeywords={cross-lagged panel model; causal inference; longitudinal},
   hidelinks,
@@ -218,7 +217,7 @@ Correspondence concerning this article should be addressed to Richard E. Lucas, 
 \affiliation{\vspace{0.5cm}\textsuperscript{1} Department of Psychology, Michigan State University\\\textsuperscript{2} Department of Psychology, Brigham Young University}
 
 \abstract{%
-The cross-lagged panel model (CLPM) is an analytic technique used to examine the reciprocal causal effects of two or more variables assessed on two or more occasions. Although widely used, the CLPM has been criticized for relying on implausible assumptions, the violation of which can often lead to biased estimates of causal effects. Recently, a \emph{triangulation method} has been proposed to identify spurious effects in simple CLPM analyses (e.g., Sorjonen \& Melin, 2024b). We use simulations and a discussion of the formulas underlying regression coefficients to show that this method does not provide a valid indicator of spuriousness. This method identifies true causal effects as spurious in realistic situations and should not be used to diagnose whether a causal effect estimated from the CLPM is spurious or not. There are clear reasons to doubt causal estimates from the CLPM, but the results of the triangulation method do not add information about whether such estimates are spurious.
+The cross-lagged panel model (CLPM) is an analytic technique used to examine the reciprocal causal effects of two or more variables assessed on two or more occasions. Although widely used, the CLPM has been criticized for relying on implausible assumptions, the violation of which can often lead to biased estimates of causal effects. Recently, a \emph{triangulation method} has been proposed to identify spurious effects in simple CLPM analyses (e.g., Sorjonen, Melin, \& Melin, 2024). We use simulations and a discussion of the formulas underlying regression coefficients to show that this method does not provide a valid indicator of spuriousness. This method identifies true causal effects as spurious in realistic situations and should not be used to diagnose whether a causal effect estimated from the CLPM is spurious or not. There are clear reasons to doubt causal estimates from the CLPM, but the results of the triangulation method do not add information about whether such estimates are spurious.
 }
 
 
@@ -234,7 +233,7 @@ Despite their clear strengths, longitudinal methods must be applied thoughtfully
 
 One widely used method for analyzing causal effects in longitudinal data is the cross-lagged panel model (CLPM, see Duncan, 1969; Finkel, 1995; Heise, 1970). The CLPM can be used to estimate causal effects when two or more variables are assessed at two or more waves. For instance, if two variables \emph{X} and \emph{Y} are assessed on two occasions, then the causal effect of \emph{X} on \emph{Y} can be estimated (again, with certain assumptions) by regressing Time 2 \emph{Y} (henceforth, \emph{Y2}) on Time 1 \emph{X} (henceforth, \emph{X1}), controlling for Time 1 \emph{Y} (henceforth, \emph{Y1}). The causal effect of \emph{Y} on \emph{X} can be estimated by regressing \emph{X2} on \emph{Y1}, controlling for \emph{X1}. Unfortunately, the CLPM rests on assumptions---such as the absence of trait-like confounders---that are unlikely to be true, which means that spurious results are likely when this model is used (Hamaker et al., 2015; Lucas, 2023). For this reason, researchers have advocated for alternative models that account for the unobserved heterogeneity that is likely to exist as a way to reduce bias in the estimated causal effects (e.g., Berry \& Willoughby, 2017; Dishop \& DeShon, 2021; Hamaker et al., 2015; Lucas, 2023; Zyphur et al., 2020). Importantly, the proposed improvements to the CLPM all require at least three waves of data. There is not enough information in two waves of data to isolate the causal effects; the same correlation matrix is equally consistent with data-generating models with and without true causal effects (Lucas, 2023; also see Ployhart \& MacKenzie, 2014; Rogosa, 1995).
 
-Recently, Sorjonen, Melin, and colleagues proposed a \emph{triangulation method} for determining whether a causal effect estimated using the CLPM is likely to be spurious (e.g., Sorjonen, Ingre, Melin, \& Nilsonne, 2024; Sorjonen \& Melin, 2024b). These authors noted that spurious lagged effects can emerge due to regression to the mean and the effects of time-invariant confounding variables (including effects of unmeasured stable trait variance), and they proposed a series of regression-based analyses that can be used to check for spuriousness. Importantly, their triangulation method can be applied when only two waves of data are available, which means that if valid, the method could establish confidence in causal effects without relying on more sophisticated models with more intensive data requirements than the simple CLPM. Sorjonen, Melin, and their colleagues have used this triangulation method repeatedly to refute causal claims made using the CLPM (Sorjonen, Ingre, Melin, \& Nilsonne, 2022a, 2022b; Sorjonen \& Melin, 2023a, 2023c, 2023b, 2024a, 2024b; Sorjonen, Nilsonne, Ingre, \& Melin, 2022; Sorjonen, Nilsonne, \& Melin, 2023b, 2023a; \textbf{sorjonen\_spurious\_2024-2?}).
+Recently, Sorjonen, Melin, and colleagues proposed a \emph{triangulation method} for determining whether a causal effect estimated using the CLPM is likely to be spurious (e.g., Sorjonen, Ingre, Melin, \& Nilsonne, 2024; Sorjonen, Melin, et al., 2024). These authors noted that spurious lagged effects can emerge due to regression to the mean and the effects of time-invariant confounding variables (including effects of unmeasured stable trait variance), and they proposed a series of regression-based analyses that can be used to check for spuriousness. Importantly, their triangulation method can be applied when only two waves of data are available, which means that if valid, the method could establish confidence in causal effects without relying on more sophisticated models with more intensive data requirements than the simple CLPM. Sorjonen, Melin, and their colleagues have used this triangulation method repeatedly to refute causal claims made using the CLPM (Sorjonen, Ingre, Melin, \& Nilsonne, 2022a, 2022b; Sorjonen \& Melin, 2023a, 2023b, 2023c, 2024a, 2024b; Sorjonen, Melin, et al., 2024; Sorjonen, Nilsonne, Ingre, \& Melin, 2022; Sorjonen, Nilsonne, \& Melin, 2023b, 2023a).
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2857}}
@@ -287,15 +286,15 @@ The next step (which we refer to as the \emph{reversal} test from this point for
 
 The final step (which we refer to as the \emph{difference} test) is to calculate the difference between \emph{Y2} and \emph{Y1} (\emph{Y2} - \emph{Y1}) and to regress this difference on \emph{X1}. The authors argue that when true causal effects exist, the coefficient for this difference-score analysis will be positive (this is equivalent to a gain-score analysis, see Kim \& Steiner, 2021, for a discussion of when gain scores like this can and cannot be used to estimate causal effects). A coefficient that is negative or zero would, according to the authors, provide evidence that the effect was spurious.
 
-As an example, Sorjonen and Melin (2024b) reanalyzed data from a previously published meta-analysis examining the reciprocal associations between work experiences and self-esteem (Krauss \& Orth, 2022). Krauss and Orth reported results of a meta-analytic CLPM, which was conducted using estimated correlations from prior research. The authors of this prior study interpreted the positive cross-lagged effects as evidence both for effects of self-esteem on later work experiences and of work experiences on later self-esteem. Sorjonen and Melin (2024b) used their triangulation method and found results that were consistent with their predictions for spurious effects. They then concluded that their ``reanalyses found prospective effects between work experiences and self-esteem to be spurious'' (p.~539). However, Sorjonen et al.'s claim that their triangulation method identifies spurious effects is not justified (as we explain below).
+As an example, Sorjonen, Melin, et al. (2024) reanalyzed data from a previously published meta-analysis examining the reciprocal associations between work experiences and self-esteem (Krauss \& Orth, 2022). Krauss and Orth reported results of a meta-analytic CLPM, which was conducted using estimated correlations from prior research. The authors of this prior study interpreted the positive cross-lagged effects as evidence both for effects of self-esteem on later work experiences and of work experiences on later self-esteem. Sorjonen, Melin, et al. (2024) used their triangulation method and found results that were consistent with their predictions for spurious effects. They then concluded that their ``reanalyses found prospective effects between work experiences and self-esteem to be spurious'' (p.~539). However, Sorjonen et al.'s claim that their triangulation method identifies spurious effects is not justified (as we explain below).
 
-The authors of the triangulation method have presented two types of evidence to support its validity. First, they showed that in situations where there is no true causal effect, their method can detect spurious effects that would otherwise be treated as causal evidence (e.g., Sorjonen \& Melin, 2024b). Second, they showed (through logic and an actual experiment) that when there is a true causal effect, the predicted pattern for non-spurious effects emerges (Sorjonen, Arshamian, Lager, Nilsonne, \& Melin, 2024). We agree with each piece of evidence that they provided. Indeed, the method might at first appear to be a promising approach to detecting spuriousness because the authors' predictions are correct in the two situations they examined: (a) when there is a true causal effect and the predictor and initial measure of the outcome are uncorrelated (as in a true experiment) (b) when there is no true causal effect and the predictor and initial measure of the outcome are correlated.
+The authors of the triangulation method have presented two types of evidence to support its validity. First, they showed that in situations where there is no true causal effect, their method can detect spurious effects that would otherwise be treated as causal evidence (e.g., Sorjonen, Melin, et al., 2024). Second, they showed (through logic and an actual experiment) that when there is a true causal effect, the predicted pattern for non-spurious effects emerges (Sorjonen, Arshamian, Lager, Nilsonne, \& Melin, 2024). We agree with each piece of evidence that they provided. Indeed, the method might at first appear to be a promising approach to detecting spuriousness because the authors' predictions are correct in the two situations they examined: (a) when there is a true causal effect and the predictor and initial measure of the outcome are uncorrelated (as in a true experiment) (b) when there is no true causal effect and the predictor and initial measure of the outcome are correlated.
 
 Unfortunately, as we show below, the triangulation method cannot detect spurious effects in situations where the CLPM is most likely to be used. Specifically, the method cannot distinguish true from spurious effects when the predictor and initial measure of the outcome are correlated. In this paper we show that with many plausible data-generating models, the proposed triangulation method signals spurious effects when these effects are in fact real. We also review the mathematics underlying the triangulation method to further support our conclusions. Based on these simulations and mathematical deductions, we propose that the triangulation method is not diagnostic regarding whether a specific effect is spurious.
 
 \subsection{Detecting Spurious Effects}\label{detecting-spurious-effects}
 
-The argument in support of the triangulation method appears to be the same across the many papers published by these authors. Here we focus on Sorjonen and Melin (2024b), published in the \emph{European Journal of Personality}, which addresses the question of whether work experiences affect self-esteem and vice versa. When justifying their method, the authors use a specific hypothetical data-generating model to illustrate how their method works. They specify two (latent) variables, \emph{X} and \emph{Y}, that correlate strongly (in this case, .80). They then simulate two indicators of the latent \emph{Y} variable---\emph{Y1} and \emph{Y2}, each of which has a reliability of .80. This data-generating model is shown in Panel A of Figure \ref{fig:dgm}.
+The argument in support of the triangulation method appears to be the same across the many papers published by these authors. Here we focus on Sorjonen, Melin, et al. (2024), published in the \emph{European Journal of Personality}, which addresses the question of whether work experiences affect self-esteem and vice versa. When justifying their method, the authors use a specific hypothetical data-generating model to illustrate how their method works. They specify two (latent) variables, \emph{X} and \emph{Y}, that correlate strongly (in this case, .80). They then simulate two indicators of the latent \emph{Y} variable---\emph{Y1} and \emph{Y2}, each of which has a reliability of .80. This data-generating model is shown in Panel A of Figure \ref{fig:dgm}.
 
 \begin{figure}
 \centering
@@ -303,7 +302,7 @@ The argument in support of the triangulation method appears to be the same acros
 \caption{\label{fig:dgm}Two possible data-generating models that can produce indistinguishable correlation matrices. Panel A is a correlated-trait model with no causal effects; Panel B is a causal-effects model where X is correlated with Y1 but also has a causal effect on Y2.}
 \end{figure}
 
-Next, Sorjonen and Melin (2024b) use an analysis that is equivalent to the CLPM to predict \emph{Y2} from \emph{X} and \emph{Y1}. They show that this analysis leads to a spurious path from \emph{X} to \emph{Y2} after controlling for \emph{Y1}, even though there is no causal effect in the data-generating model. In other words, the authors test and find support for the model in Panel B of Figure \ref{fig:dgm} (in which there is a true causal effect), despite the fact that the data were generated using the model shown in Panel A (where there is no causal effect).
+Next, Sorjonen, Melin, et al. (2024) use an analysis that is equivalent to the CLPM to predict \emph{Y2} from \emph{X} and \emph{Y1}. They show that this analysis leads to a spurious path from \emph{X} to \emph{Y2} after controlling for \emph{Y1}, even though there is no causal effect in the data-generating model. In other words, the authors test and find support for the model in Panel B of Figure \ref{fig:dgm} (in which there is a true causal effect), despite the fact that the data were generated using the model shown in Panel A (where there is no causal effect).
 
 Finally, they use their triangulation method to show that when the regression equation is reversed to predict \emph{Y1} from \emph{X} and \emph{Y2}, the coefficient for \emph{X} is positive. They then reason that if this coefficient is positive when the data were generated from a model with no causal effect, then the existence of this positive coefficient must signal a spurious effect. This conclusion, however, is incorrect. The existence of a positive coefficient when reversing the regression equation should only be interpreted as a signal of a spurious effect if the coefficient is positive \emph{if and only if} the estimated causal effect is spurious. Although we agree that the sign will be positive when the estimated causal effect is spurious, it will \emph{also} be positive in many cases where a \emph{true} causal effects exist. Thus, the triangulation method suffers from low specificity, as it provides false positives when evaluating CLPM findings.
 
@@ -384,7 +383,7 @@ One response to our critique of the triangulation method might be to highlight t
 
 \subsubsection{Difference Test}\label{difference-test}
 
-Figure \ref{fig:sim2} shows the results for the \emph{difference test} proposed by the proponents of the triangulation method, in which the difference between \emph{Y2} and \emph{Y1} is regressed on \emph{X1}. In this case, the prediction is that for true effects, this coefficient should be positive. The equation for the regression coefficient for the difference test is (Sorjonen \& Melin, 2024b): \[\beta_{D} = \frac{r_{X1,Y2} - r_{X1,Y1}} {\sqrt{2(1 - r_{Y1,Y2})}}\] Again, the sign of this test is determined by the numerator of the equation, and it will be negative (signaling a spurious effect) when the correlation \(r_{X1,Y2}\) is smaller than the correlation \(r_{X1,Y1}\). This can happen in the presence of true causal effects if there is a substantial correlation between \emph{X1} and \emph{Y1}, low stability from \emph{Y1} to \emph{Y2}, and weak effects of \emph{X1} on \emph{Y2}. The simulations shown in Figure \ref{fig:sim2} highlight these patterns. The factors that lead to negative coefficients in the presence of true causal effects are: stronger correlations between \emph{X1} and \emph{Y1}, smaller true causal effects of \emph{X1}, and weaker stability of \emph{Y}. The effect of increasing residual variance in \emph{Y2} is less pronounced as compared to the effect for the reversal test. Again, these simulations (and the formula for the regression coefficient) show that the difference test is not diagnostic of spurious effects.
+Figure \ref{fig:sim2} shows the results for the \emph{difference test} proposed by the proponents of the triangulation method, in which the difference between \emph{Y2} and \emph{Y1} is regressed on \emph{X1}. In this case, the prediction is that for true effects, this coefficient should be positive. The equation for the regression coefficient for the difference test is (Sorjonen, Melin, et al., 2024): \[\beta_{D} = \frac{r_{X1,Y2} - r_{X1,Y1}} {\sqrt{2(1 - r_{Y1,Y2})}}\] Again, the sign of this test is determined by the numerator of the equation, and it will be negative (signaling a spurious effect) when the correlation \(r_{X1,Y2}\) is smaller than the correlation \(r_{X1,Y1}\). This can happen in the presence of true causal effects if there is a substantial correlation between \emph{X1} and \emph{Y1}, low stability from \emph{Y1} to \emph{Y2}, and weak effects of \emph{X1} on \emph{Y2}. The simulations shown in Figure \ref{fig:sim2} highlight these patterns. The factors that lead to negative coefficients in the presence of true causal effects are: stronger correlations between \emph{X1} and \emph{Y1}, smaller true causal effects of \emph{X1}, and weaker stability of \emph{Y}. The effect of increasing residual variance in \emph{Y2} is less pronounced as compared to the effect for the reversal test. Again, these simulations (and the formula for the regression coefficient) show that the difference test is not diagnostic of spurious effects.
 
 \begin{figure}
 \centering
@@ -416,7 +415,7 @@ The authors declare that there were no conflicts of interest with respect to the
 
 \subsection{Prior Versions}\label{prior-versions}
 
-A preprint of this paper was posted on the PsyArXiv preprint server: \url{https://osf.io/preprints/psyarxiv/}.
+A preprint of this paper was posted on the PsyArXiv preprint server: \url{https://osf.io/u49q5/}.
 
 \newpage
 
@@ -473,7 +472,7 @@ Sorjonen, K., Arshamian, A., Lager, E., Nilsonne, G., \& Melin, B. (2024). \emph
 \bibitem[\citeproctext]{ref-sorjonen_prospective_2022}
 Sorjonen, K., Ingre, M., Melin, B., \& Nilsonne, G. (2022a). \emph{Prospective associations between self-esteem and quality of social relations may be spurious: {Reanalysis} of a meta-analysis of longitudinal studies}. \url{https://doi.org/10.31234/osf.io/kusft}
 
-\bibitem[\citeproctext]{ref-sorjonen_questioning_2022-1}
+\bibitem[\citeproctext]{ref-sorjonen_questioning_2022}
 Sorjonen, K., Ingre, M., Melin, B., \& Nilsonne, G. (2022b). \emph{Questioning the reciprocal effects model of academic self-concept and achievement: {A} reanalysis of a meta-analysis of longitudinal studies and a simulation}. \url{https://doi.org/10.31234/osf.io/qd4bj}
 
 \bibitem[\citeproctext]{ref-sorjonen_questioning_2024}
@@ -482,7 +481,7 @@ Sorjonen, K., Ingre, M., Melin, B., \& Nilsonne, G. (2024). \emph{Questioning th
 \bibitem[\citeproctext]{ref-sorjonen_prospective_2023}
 Sorjonen, K., \& Melin, B. (2023a). Prospective associations between social support and posttraumatic stress disorder may be spurious: {A} re-meta-analysis of longitudinal studies and a simulation. \emph{Journal of Affective Disorders}, \emph{340}, 174--180. \url{https://doi.org/10.1016/j.jad.2023.08.014}
 
-\bibitem[\citeproctext]{ref-sorjonen_spurious_2023}
+\bibitem[\citeproctext]{ref-sorjonen_spurious_2023-2}
 Sorjonen, K., \& Melin, B. (2023b). \emph{Spurious prospective effect of perfectionism on depression: {Reanalysis} of a meta-analytic cross-lagged panel analysis}. \url{https://doi.org/10.31234/osf.io/rfs3u}
 
 \bibitem[\citeproctext]{ref-sorjonen_spurious_2023-1}
@@ -491,20 +490,23 @@ Sorjonen, K., \& Melin, B. (2023c). \emph{Spurious prospective effect of self-ef
 \bibitem[\citeproctext]{ref-sorjonen_prospective_2024}
 Sorjonen, K., \& Melin, B. (2024a). Prospective effects of mindfulness on anxiety and depressive symptoms may be spurious: {Simulated} reanalysis of a meta-analytic cross-lagged panel analysis. \emph{PLOS ONE}, \emph{19}(5), e0302141. \url{https://doi.org/10.1371/journal.pone.0302141}
 
-\bibitem[\citeproctext]{ref-sorjonen_spurious_2024}
+\bibitem[\citeproctext]{ref-sorjonen_spurious_2024-2}
 Sorjonen, K., \& Melin, B. (2024b). Spurious prospective effects between general and domain-specific self-esteem: {A} reanalysis of a meta-analysis of longitudinal studies. \emph{PLOS ONE}, \emph{19}(2), e0298158. \url{https://doi.org/10.1371/journal.pone.0298158}
 
-\bibitem[\citeproctext]{ref-sorjonen_questioning_2022}
+\bibitem[\citeproctext]{ref-sorjonen_spurious_2024}
+Sorjonen, K., Melin, M., \& Melin, B. (2024). Spurious prospective effects between work experiences and self-esteem: {A} reanalysis of a meta-analysis of longitudinal studies. \emph{European Journal of Personality}, \emph{38}(3), 534--543. \url{https://doi.org/10.1177/08902070231197876}
+
+\bibitem[\citeproctext]{ref-sorjonen_questioning_2022-1}
 Sorjonen, K., Nilsonne, G., Ingre, M., \& Melin, B. (2022). Questioning the vulnerability model: {Prospective} associations between low self-esteem and subsequent depression ratings may be spurious. \emph{Journal of Affective Disorders}, \emph{315}, 259--266. \url{https://doi.org/10.1016/j.jad.2022.08.003}
 
 \bibitem[\citeproctext]{ref-sorjonen_distorted_2023}
 Sorjonen, K., Nilsonne, G., \& Melin, B. (2023a). Distorted meta-analytic findings on peer influence: {A} reanalysis. \emph{Heliyon}, \emph{9}(11), e21458. \url{https://doi.org/10.1016/j.heliyon.2023.e21458}
 
-\bibitem[\citeproctext]{ref-sorjonen_spurious_2023-2}
+\bibitem[\citeproctext]{ref-sorjonen_spurious_2023}
 Sorjonen, K., Nilsonne, G., \& Melin, B. (2023b). \emph{Spurious peer influence: {Reanalysis} of a meta-analysis of longitudinal studies}. \url{https://doi.org/10.31234/osf.io/szkt8}
 
 \bibitem[\citeproctext]{ref-zyphur_data_2020}
-Zyphur, M. J., Voelkle, M. C., Tay, L., Allison, P. D., Preacher, K. J., Zhang, Z., \ldots{} Diener, E. (2020). From {Data} to {Causes II}: {Comparing Approaches} to {Panel Data Analysis}. \emph{Organizational Research Methods}, \emph{23}(4), 688--716. \url{https://doi.org/gf8rt7}
+Zyphur, M. J., Allison, P. D., Tay, L., Voelkle, M. C., Preacher, K. J., Zhang, Z., \ldots{} Diener, E. (2020). From {Data} to {Causes I}: {Building A General Cross-Lagged Panel Model} ({GCLM}). \emph{Organizational Research Methods}, \emph{23}(4), 651--687. \url{https://doi.org/gf8rt5}
 
 \end{CSLReferences}
 

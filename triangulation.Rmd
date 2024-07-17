@@ -39,7 +39,7 @@ bibliography:
    - '/home/rich/Dropbox/MyLibraryZ2.bib'
    - r-references.bib
 floatsintext: yes
-mask: no
+mask: yes
 linenumbers: no
 documentclass: "apa6"
 classoption: "man"
@@ -359,7 +359,7 @@ The authors declare that there were no conflicts of interest with respect to the
 
 ## Prior Versions
 
-A preprint of this paper was posted on the PsyArXiv preprint server:  https://osf.io/preprints/psyarxiv/.
+A preprint of this paper was posted on the PsyArXiv preprint server:  https://osf.io/u49q5/.
 
 
 \newpage
