@@ -1,0 +1,3 @@
+The triangulation test is not a valid way to detect spurious results from the cross-lagged panel model
+
+Researchers use specific quantitative models to provide evidence that one variable has a causal impact on another. A commonly used model for this purpose is the cross-lagged panel model (CLPM). In a previous paper, researchers developed a new method that they claim can determine whether an estimated effect from the CLPM is spurious or not. Our paper shows that this new test for spuriousness is not valid.
